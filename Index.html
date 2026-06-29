@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BuzzBox — Nicotine Vending for Bars & Nightclubs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #080810;
+      --white: #f0eeff;
+      --purple: #7c3aed;
+      --purple-light: #a855f7;
+      --purple-glow: rgba(124,58,237,0.35);
+      --neon: #c084fc;
+      --steel: #1a1826;
+      --border: rgba(124,58,237,0.3);
+      --muted: rgba(240,238,255,0.45);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed; top: -30%; left: -10%; width: 70%; height: 70%;
+      background: radial-gradient(ellipse, rgba(124,58,237,0.12) 0%, transparent 65%);
+      pointer-events: none; z-index: 0;
+    }
+    body::after {
+      content: '';
+      position: fixed; bottom: -20%; right: -10%; width: 60%; height: 60%;
+      background: radial-gradient(ellipse, rgba(192,132,252,0.08) 0%, transparent 65%);
+      pointer-events: none; z-index: 0;
+    }
+
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.4rem 3rem;
+      border-bottom: 1px solid rgba(124,58,237,0.15);
+      backdrop-filter: blur(16px);
+      background: rgba(8,8,16,0.75);
+    }
+    .logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.7rem;
+      letter-spacing: 0.1em;
+    }
+    .logo span { color: var(--neon); text-shadow: 0 0 20px rgba(192,132,252,0.7); }
+    nav ul { list-style: none; display: flex; gap: 2.5rem; }
+    nav ul a {
+      color: var(--muted); text-decoration: none; font-size: 0.82rem;
+      letter-spacing: 0.08em; text-transform: uppercase; transition: color 0.2s;
+    }
+    nav ul a:hover { color: var(--white); }
+    .nav-cta {
+      background: var(--purple); color: var(--white) !important;
+      padding: 0.55rem 1.4rem; border-radius: 3px; font-weight: 500 !important;
+      transition: background 0.2s !important; box-shadow: 0 0 20px var(--purple-glow);
+    }
+    .nav-cta:hover { background: var(--purple-light) !important; }
+
+    .hero {
+      min-height: 100vh;
+      display: grid; grid-template-columns: 1fr 1fr;
+      align-items: center; padding: 7rem 3rem 4rem; gap: 4rem;
+      position: relative; z-index: 1;
+    }
+    .hero-noise {
+      position: absolute; inset: 0;
+      background-image: radial-gradient(rgba(124,58,237,0.15) 1px, transparent 1px);
+      background-size: 40px 40px; pointer-events: none;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
+    }
+    .hero-text { position: relative; }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 0.6rem;
+      border: 1px solid var(--border); padding: 0.38rem 1rem; border-radius: 100px;
+      font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em;
+      color: var(--neon); text-transform: uppercase; margin-bottom: 2rem;
+      background: rgba(124,58,237,0.08); animation: fadeUp 0.6s ease both;
+    }
+    .hero-badge::before {
+      content: ''; width: 7px; height: 7px; background: var(--neon);
+      border-radius: 50%; box-shadow: 0 0 8px var(--neon); animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+
+    h1 {
+      font-family: 'Bebas Neue', sans-serif; font-size: clamp(3.5rem, 5.5vw, 6.5rem);
+      line-height: 0.93; letter-spacing: 0.02em; animation: fadeUp 0.7s 0.1s ease both;
+    }
+    h1 em {
+      font-style: normal; color: var(--neon);
+      text-shadow: 0 0 40px rgba(192,132,252,0.5); display: block;
+    }
+    .hero-sub {
+      margin-top: 1.8rem; font-size: 1.05rem; color: var(--muted);
+      line-height: 1.75; max-width: 480px; animation: fadeUp 0.7s 0.2s ease both;
+    }
+    .hero-actions {
+      margin-top: 2.5rem; display: flex; gap: 1rem; align-items: center;
+      animation: fadeUp 0.7s 0.3s ease both;
+    }
+    .btn-primary {
+      background: var(--purple); color: var(--white); border: none;
+      padding: 0.9rem 2.2rem; font-family: 'DM Sans', sans-serif; font-size: 0.9rem;
+      font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; cursor: pointer;
+      border-radius: 3px; text-decoration: none; display: inline-block;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+      box-shadow: 0 0 24px var(--purple-glow);
+    }
+    .btn-primary:hover { background: var(--purple-light); transform: translateY(-2px); box-shadow: 0 0 36px var(--purple-glow); }
+    .btn-ghost {
+      color: var(--white); text-decoration: none; font-size: 0.88rem;
+      letter-spacing: 0.05em; opacity: 0.5; transition: opacity 0.2s;
+      display: flex; align-items: center; gap: 0.4rem;
+    }
+    .btn-ghost:hover { opacity: 1; }
+
+    .hero-visual {
+      position: relative; display: flex;
+      justify-content: center; align-items: center;
+      animation: fadeUp 0.8s 0.2s ease both;
+    }
+    .machine {
+      width: 280px; height: 490px;
+      background: linear-gradient(160deg, #1e1b2e 0%, #120f1e 100%);
+      border-radius: 14px 14px 6px 6px;
+      border: 1px solid rgba(124,58,237,0.25); position: relative;
+      box-shadow: 0 0 60px rgba(124,58,237,0.2), 0 40px 80px rgba(0,0,0,0.7), inset 0 1px 0 rgba(192,132,252,0.1);
+    }
+    .machine::before {
+      content: ''; position: absolute; top: -2px; left: 30px; right: 30px; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--neon), transparent);
+      border-radius: 2px; box-shadow: 0 0 20px var(--neon);
+    }
+    .machine-label {
+      text-align: center; padding: 14px 0 0;
+      font-family: 'Bebas Neue', sans-serif; font-size: 1rem;
+      letter-spacing: 0.2em; color: rgba(192,132,252,0.5);
+    }
+    .machine-screen {
+      margin: 10px 20px 14px; height: 130px; background: #08060f;
+      border-radius: 6px; border: 1px solid rgba(124,58,237,0.4);
+      overflow: hidden; position: relative;
+    }
+    .scan-line {
+      position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--neon), transparent);
+      animation: scan 2.5s ease-in-out infinite;
+    }
+    @keyframes scan { 0% { top: 0; opacity: 1; } 100% { top: 100%; opacity: 0.1; } }
+    .screen-content {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; height: 100%; gap: 8px;
+    }
+    .screen-icon { font-size: 1.8rem; }
+    .screen-text { font-family: 'DM Mono', monospace; font-size: 0.64rem; color: var(--neon); letter-spacing: 0.12em; }
+    .screen-status { font-family: 'DM Mono', monospace; font-size: 0.56rem; color: rgba(192,132,252,0.4); letter-spacing: 0.08em; animation: blink 1.2s step-end infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    .machine-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 0 18px; margin-bottom: 14px; }
+    .product-slot { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 4px; height: 54px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+    .product-slot.lit { border-color: rgba(124,58,237,0.45); background: rgba(124,58,237,0.08); box-shadow: inset 0 0 12px rgba(124,58,237,0.1); }
+    .machine-panel { margin: 0 18px; background: rgba(0,0,0,0.4); border-radius: 4px; padding: 10px; display: flex; align-items: center; gap: 8px; border: 1px solid rgba(124,58,237,0.15); }
+    .id-indicator { width: 10px; height: 10px; background: #4ade80; border-radius: 50%; box-shadow: 0 0 10px #4ade80; flex-shrink: 0; }
+    .panel-text { font-family: 'DM Mono', monospace; font-size: 0.58rem; color: rgba(240,238,255,0.35); letter-spacing: 0.07em; }
+    .machine-footer { position: absolute; bottom: 0; left: 0; right: 0; height: 60px; background: rgba(0,0,0,0.5); border-radius: 0 0 6px 6px; border-top: 1px solid rgba(124,58,237,0.1); display: flex; align-items: center; justify-content: center; }
+    .machine-slot { width: 80px; height: 10px; background: #050508; border-radius: 2px; border: 1px solid rgba(124,58,237,0.2); }
+
+    .stat-float { position: absolute; right: -36px; top: 50px; background: var(--steel); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; text-align: center; animation: float 4s ease-in-out infinite; box-shadow: 0 0 20px rgba(124,58,237,0.15); }
+    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    .stat-float .num { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; color: var(--neon); display: block; text-shadow: 0 0 20px rgba(192,132,252,0.5); }
+    .stat-float .label { font-family: 'DM Mono', monospace; font-size: 0.6rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+    .stat-float2 { position: absolute; left: -44px; bottom: 130px; background: rgba(124,58,237,0.15); border: 1px solid var(--purple); border-radius: 8px; padding: 0.8rem 1rem; animation: float 4s 1.5s ease-in-out infinite; }
+    .stat-float2 .num { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; color: var(--neon); display: block; }
+    .stat-float2 .label { font-family: 'DM Mono', monospace; font-size: 0.58rem; color: var(--muted); letter-spacing: 0.08em; }
+
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+
+    .venues-bar {
+      position: relative; z-index: 1;
+      border-top: 1px solid rgba(124,58,237,0.12); border-bottom: 1px solid rgba(124,58,237,0.12);
+      padding: 1.5rem 3rem; display: flex; align-items: center; gap: 3rem;
+      background: rgba(8,8,16,0.6); overflow: hidden;
+    }
+    .venues-label { font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; white-space: nowrap; flex-shrink: 0; }
+    .venues-track { display: flex; gap: 3.5rem; align-items: center; animation: marquee 22s linear infinite; white-space: nowrap; }
+    @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+    .venue-name { font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; letter-spacing: 0.12em; color: rgba(240,238,255,0.2); }
+
+    .stats-bar {
+      position: relative; z-index: 1;
+      border-bottom: 1px solid rgba(124,58,237,0.12);
+      display: grid; grid-template-columns: repeat(4, 1fr); padding: 0 3rem;
+    }
+    .stat-item { padding: 2.2rem 2rem; border-right: 1px solid rgba(124,58,237,0.12); }
+    .stat-item:last-child { border-right: none; }
+    .stat-num { font-family: 'Bebas Neue', sans-serif; font-size: 2.8rem; color: var(--neon); line-height: 1; text-shadow: 0 0 30px rgba(192,132,252,0.4); }
+    .stat-label { font-size: 0.8rem; color: var(--muted); margin-top: 0.3rem; }
+
+    section { padding: 6rem 3rem; position: relative; z-index: 1; }
+    .section-label { font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--neon); margin-bottom: 1rem; }
+    .section-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(2.5rem, 4vw, 4rem); letter-spacing: 0.03em; line-height: 1; margin-bottom: 1.2rem; }
+    .section-sub { color: var(--muted); max-width: 520px; line-height: 1.75; font-size: 0.95rem; }
+
+    .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: rgba(124,58,237,0.12); margin-top: 4rem; border: 1px solid rgba(124,58,237,0.12); border-radius: 4px; overflow: hidden; }
+    .feature-card { background: var(--black); padding: 2.5rem; transition: background 0.3s; position: relative; overflow: hidden; }
+    .feature-card::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--purple), var(--neon)); transform: scaleX(0); transform-origin: left; transition: transform 0.35s; }
+    .feature-card:hover { background: rgba(124,58,237,0.05); }
+    .feature-card:hover::after { transform: scaleX(1); }
+    .feature-icon { width: 48px; height: 48px; background: rgba(124,58,237,0.12); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; margin-bottom: 1.5rem; }
+    .feature-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.35rem; letter-spacing: 0.05em; margin-bottom: 0.7rem; }
+    .feature-desc { font-size: 0.88rem; color: var(--muted); line-height: 1.7; }
+
+    .how-section { background: rgba(124,58,237,0.03); border-top: 1px solid rgba(124,58,237,0.12); border-bottom: 1px solid rgba(124,58,237,0.12); }
+    .steps { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: 4rem; position: relative; }
+    .steps::before { content: ''; position: absolute; top: 27px; left: 12.5%; right: 12.5%; height: 1px; background: linear-gradient(90deg, transparent, var(--purple), var(--neon), var(--purple), transparent); opacity: 0.35; }
+    .step { padding: 0 2rem; text-align: center; }
+    .step-num { width: 56px; height: 56px; background: var(--black); border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; color: var(--neon); margin: 0 auto 1.5rem; box-shadow: 0 0 20px rgba(124,58,237,0.2); }
+    .step-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.15rem; letter-spacing: 0.05em; margin-bottom: 0.6rem; }
+    .step-desc { font-size: 0.83rem; color: var(--muted); line-height: 1.65; }
+
+    .revenue-section { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center; }
+    .revenue-card { background: var(--steel); border: 1px solid rgba(124,58,237,0.2); border-radius: 10px; padding: 2.5rem; position: relative; overflow: hidden; }
+    .revenue-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--purple), var(--neon)); }
+    .revenue-row { display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; border-bottom: 1px solid rgba(124,58,237,0.1); font-size: 0.9rem; }
+    .revenue-row:last-of-type { border-bottom: none; }
+    .revenue-row .rkey { color: var(--muted); }
+    .revenue-row .rval { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; color: var(--neon); letter-spacing: 0.05em; }
+    .revenue-row .rval.highlight { color: #4ade80; text-shadow: 0 0 20px rgba(74,222,128,0.4); }
+    .revenue-note { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--muted); margin-top: 1.2rem; letter-spacing: 0.06em; opacity: 0.6; }
+
+    .compliance-section { display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; align-items: center; }
+    .compliance-list { list-style: none; margin-top: 2rem; display: flex; flex-direction: column; gap: 1.2rem; }
+    .compliance-list li { display: flex; align-items: flex-start; gap: 1rem; font-size: 0.9rem; color: rgba(240,238,255,0.7); line-height: 1.6; }
+    .check { width: 22px; height: 22px; background: rgba(124,58,237,0.15); border: 1px solid var(--purple); border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 0.72rem; color: var(--neon); flex-shrink: 0; margin-top: 2px; }
+    .compliance-visual { background: var(--steel); border: 1px solid rgba(124,58,237,0.2); border-radius: 10px; padding: 2.5rem; }
+    .id-scan-demo { background: #05040d; border-radius: 6px; border: 1px solid rgba(124,58,237,0.35); padding: 1.5rem; font-family: 'DM Mono', monospace; font-size: 0.73rem; color: var(--neon); line-height: 2; }
+    .id-line { display: flex; justify-content: space-between; }
+    .id-line .val { color: rgba(240,238,255,0.55); }
+    .id-line .success { color: #4ade80; }
+    .id-line .processing { color: var(--neon); animation: blink 1s infinite; }
+    .scan-bar { margin-top: 1rem; height: 4px; background: rgba(124,58,237,0.15); border-radius: 2px; overflow: hidden; }
+    .scan-bar-fill { height: 100%; background: linear-gradient(90deg, var(--purple), var(--neon)); border-radius: 2px; animation: fillBar 2.5s ease-in-out infinite; }
+    @keyframes fillBar { 0% { width: 0%; } 60% { width: 100%; } 100% { width: 100%; } }
+
+    .testimonials { background: rgba(124,58,237,0.03); border-top: 1px solid rgba(124,58,237,0.12); border-bottom: 1px solid rgba(124,58,237,0.12); }
+    .testimonials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 3.5rem; }
+    .testimonial-card { background: var(--steel); border: 1px solid rgba(124,58,237,0.15); border-radius: 8px; padding: 2rem; }
+    .testimonial-stars { color: var(--neon); font-size: 0.85rem; margin-bottom: 1rem; letter-spacing: 2px; }
+    .testimonial-quote { font-size: 0.9rem; color: rgba(240,238,255,0.7); line-height: 1.7; font-style: italic; margin-bottom: 1.5rem; }
+    .testimonial-author { font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.08em; color: var(--muted); }
+    .testimonial-author strong { color: var(--white); display: block; margin-bottom: 0.1rem; font-style: normal; }
+
+    .cta-section { text-align: center; padding: 8rem 3rem; position: relative; overflow: hidden; z-index: 1; }
+    .cta-section::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 70% 70% at 50% 50%, rgba(124,58,237,0.12) 0%, transparent 70%); }
+    .cta-section h2 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(3rem, 5vw, 5.5rem); letter-spacing: 0.02em; margin-bottom: 1.2rem; position: relative; }
+    .cta-section p { color: var(--muted); font-size: 1rem; max-width: 500px; margin: 0 auto 2.8rem; line-height: 1.75; position: relative; }
+    .cta-actions { display: flex; gap: 1rem; justify-content: center; position: relative; }
+    .btn-outline { border: 1px solid rgba(124,58,237,0.4); background: transparent; color: var(--white); padding: 0.9rem 2rem; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 400; letter-spacing: 0.05em; text-transform: uppercase; cursor: pointer; border-radius: 3px; text-decoration: none; transition: border-color 0.2s, background 0.2s; }
+    .btn-outline:hover { border-color: var(--purple); background: rgba(124,58,237,0.08); }
+
+    footer { position: relative; z-index: 1; border-top: 1px solid rgba(124,58,237,0.12); padding: 2.5rem 3rem; display: flex; align-items: center; justify-content: space-between; background: rgba(8,8,16,0.8); }
+    .footer-logo { font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; letter-spacing: 0.1em; }
+    .footer-logo span { color: var(--neon); text-shadow: 0 0 16px rgba(192,132,252,0.6); }
+    .footer-links { display: flex; gap: 2rem; list-style: none; }
+    .footer-links a { color: rgba(240,238,255,0.3); text-decoration: none; font-size: 0.8rem; letter-spacing: 0.05em; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--white); }
+    .footer-copy { font-size: 0.72rem; color: rgba(240,238,255,0.2); font-family: 'DM Mono', monospace; }
+
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; padding: 6rem 1.5rem 3rem; }
+      .hero-visual { display: none; }
+      .stats-bar { grid-template-columns: repeat(2, 1fr); }
+      .features-grid { grid-template-columns: 1fr; }
+      .steps { grid-template-columns: repeat(2, 1fr); gap: 2rem; }
+      .steps::before { display: none; }
+      .compliance-section, .revenue-section { grid-template-columns: 1fr; }
+      .testimonials-grid { grid-template-columns: 1fr; }
+      nav { padding: 1.2rem 1.5rem; }
+      nav ul { display: none; }
+      section { padding: 4rem 1.5rem; }
+      footer { flex-direction: column; gap: 1.5rem; text-align: center; }
+      .venues-bar { flex-direction: column; align-items: flex-start; gap: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="logo">Buzz<span>Box</span></div>
+    <ul>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#revenue">Revenue</a></li>
+      <li><a href="#compliance">Compliance</a></li>
+      <li><a href="#contact" class="nav-cta">Get a Machine</a></li>
+    </ul>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-noise"></div>
+    <div class="hero-text">
+      <div class="hero-badge">Built for Bars &amp; Nightclubs</div>
+      <h1>More Revenue.<em>Zero Liability.</em></h1>
+      <p class="hero-sub">
+        BuzzBox is the age-verified nicotine vending machine built specifically for bars, clubs, and late-night venues. Your guests get cigarettes and vapes on demand — without your staff touching a single transaction.
+      </p>
+      <div class="hero-actions">
+        <a href="#contact" class="btn-primary">Get a Machine for Your Venue</a>
+        <a href="#how" class="btn-ghost">See how it works →</a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="machine">
+        <div class="machine-label">BUZZBOX</div>
+        <div class="machine-screen">
+          <div class="scan-line"></div>
+          <div class="screen-content">
+            <div class="screen-icon">🪪</div>
+            <div class="screen-text">SCAN YOUR ID TO CONTINUE</div>
+            <div class="screen-status">Awaiting document...</div>
+          </div>
+        </div>
+        <div class="machine-grid">
+          <div class="product-slot lit">🚬</div>
+          <div class="product-slot lit">🟤</div>
+          <div class="product-slot">💨</div>
+          <div class="product-slot">🟤</div>
+          <div class="product-slot lit">🚬</div>
+          <div class="product-slot">💨</div>
+        </div>
+        <div class="machine-panel">
+          <div class="id-indicator"></div>
+          <div class="panel-text">ID VERIFIED — AGE 21+ CONFIRMED</div>
+        </div>
+        <div class="machine-footer">
+          <div class="machine-slot"></div>
+        </div>
+      </div>
+      <div class="stat-float">
+        <span class="num">99.8%</span>
+        <span class="label">Scan Accuracy</span>
+      </div>
+      <div class="stat-float2">
+        <span class="num">&lt;3s</span>
+        <span class="label">Verify Time</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="venues-bar">
+    <div class="venues-label">Trusted by venues including</div>
+    <div class="venues-track">
+      <span class="venue-name">The Neon Den</span>
+      <span class="venue-name">Club Marquee</span>
+      <span class="venue-name">The Velvet Room</span>
+      <span class="venue-name">Bar None Chicago</span>
+      <span class="venue-name">Skyline Lounge</span>
+      <span class="venue-name">The Late Shift</span>
+      <span class="venue-name">Electric Social</span>
+      <span class="venue-name">House of Spirits</span>
+      <span class="venue-name">The Neon Den</span>
+      <span class="venue-name">Club Marquee</span>
+      <span class="venue-name">The Velvet Room</span>
+      <span class="venue-name">Bar None Chicago</span>
+      <span class="venue-name">Skyline Lounge</span>
+      <span class="venue-name">The Late Shift</span>
+      <span class="venue-name">Electric Social</span>
+      <span class="venue-name">House of Spirits</span>
+    </div>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat-item">
+      <div class="stat-num">1,800+</div>
+      <div class="stat-label">Bars &amp; clubs served nationwide</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">$1,200</div>
+      <div class="stat-label">Avg. monthly revenue per unit</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">99.8%</div>
+      <div class="stat-label">ID verification accuracy</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">0</div>
+      <div class="stat-label">Underage sales on record</div>
+    </div>
+  </div>
+
+  <section id="features">
+    <div class="section-label">Why BuzzBox</div>
+    <h2 class="section-title">The Vending Machine Your<br>Bar Has Been Missing</h2>
+    <p class="section-sub">Your bartenders are slammed. Your smokers are frustrated. BuzzBox gives guests what they want — without pulling your staff away from the bar.</p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🪪</div>
+        <div class="feature-title">Built-In ID Verification</div>
+        <p class="feature-desc">Every sale requires a scanned government ID. Licenses, passports, and military IDs verified in under 3 seconds — no staff involvement, no liability gap.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🌙</div>
+        <div class="feature-title">Made for Late Nights</div>
+        <p class="feature-desc">Operates 24/7 without supervision. When your staff is three-deep at 1am, BuzzBox keeps serving your guests without skipping a beat.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💸</div>
+        <div class="feature-title">Revenue Share Model</div>
+        <p class="feature-desc">No upfront cost. We place and maintain the machine — you earn a monthly revenue cut from every sale. Typical venues earn $800–$1,500/month passively.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🚬</div>
+        <div class="feature-title">Cigs, Vapes &amp; Pouches</div>
+        <p class="feature-desc">Stock up to 30 SKUs — cigarettes, disposable vapes, nicotine pouches, lighters. We handle restocking so you never have to think about inventory.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <div class="feature-title">Protects Your Liquor License</div>
+        <p class="feature-desc">Every transaction is automatically logged and compliant with state tobacco regulations. If inspectors come, your records are bulletproof and instantly accessible.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📲</div>
+        <div class="feature-title">Venue Dashboard</div>
+        <p class="feature-desc">Track your earnings, see what's selling, and monitor the machine's status from any phone. Real-time alerts when stock runs low or service is needed.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="how" class="how-section">
+    <div class="section-label">The Guest Experience</div>
+    <h2 class="section-title">Seamless for Guests,<br>Effortless for You</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-title">Guest Approaches</div>
+        <p class="step-desc">The illuminated touchscreen draws guests in — positioned near the bar, patio, or smoking area for maximum visibility.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-title">ID Scanned</div>
+        <p class="step-desc">Guest scans their government ID. Age and validity verified instantly — under 3 seconds, no staff needed.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-title">Product Selected</div>
+        <p class="step-desc">Once verified, the full product menu unlocks. Guest picks what they want and pays by card or tap.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <div class="step-title">Dispensed &amp; Logged</div>
+        <p class="step-desc">Product drops, payment processed, transaction logged. Your cut is tracked automatically in your dashboard.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="revenue">
+    <div class="revenue-section">
+      <div>
+        <div class="section-label">The Business Case</div>
+        <h2 class="section-title">Pure Passive Income for<br>Your Venue</h2>
+        <p class="section-sub">BuzzBox machines are placed at zero cost to you. We handle installation, restocking, and maintenance. You just collect your monthly revenue share — no effort required.</p>
+        <br><br>
+        <p class="section-sub">Venues in high-traffic nightlife areas average <strong style="color:var(--neon)">$1,200/month</strong> in passive revenue per unit. Clubs with heavy weekend crowds often clear $2,000/month.</p>
+      </div>
+      <div class="revenue-card">
+        <div class="revenue-row">
+          <span class="rkey">Machine cost to you</span>
+          <span class="rval highlight">$0</span>
+        </div>
+        <div class="revenue-row">
+          <span class="rkey">Installation &amp; setup</span>
+          <span class="rval highlight">$0</span>
+        </div>
+        <div class="revenue-row">
+          <span class="rkey">Restocking &amp; maintenance</span>
+          <span class="rval highlight">$0</span>
+        </div>
+        <div class="revenue-row">
+          <span class="rkey">Avg. transactions / night</span>
+          <span class="rval">22–40</span>
+        </div>
+        <div class="revenue-row">
+          <span class="rkey">Your avg. monthly cut</span>
+          <span class="rval highlight">$800–$1,500</span>
+        </div>
+        <div class="revenue-row">
+          <span class="rkey">Staff time required</span>
+          <span class="rval highlight">None</span>
+        </div>
+        <p class="revenue-note">* Based on avg. venue data across 1,800+ deployed units. Results vary by venue traffic and product mix.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="compliance" style="background: rgba(124,58,237,0.02); border-top: 1px solid rgba(124,58,237,0.1); border-bottom: 1px solid rgba(124,58,237,0.1);">
+    <div class="compliance-section">
+      <div>
+        <div class="section-label">Your License, Protected</div>
+        <h2 class="section-title">Every Sale Is Legal,<br>Logged &amp; Locked Down</h2>
+        <p class="section-sub">One underage tobacco sale can cost you your liquor license. BuzzBox makes that risk impossible — every single transaction is age-gated before it happens.</p>
+        <ul class="compliance-list">
+          <li><div class="check">✓</div><span>Hard age gate on every sale — no ID, no product, no exceptions</span></li>
+          <li><div class="check">✓</div><span>Encrypted audit logs retained for 7 years, available on demand for inspections</span></li>
+          <li><div class="check">✓</div><span>State-specific compliance rules pre-configured — we track regulation changes so you don't have to</span></li>
+          <li><div class="check">✓</div><span>Accepts all 50-state licenses, military IDs, and passports</span></li>
+          <li><div class="check">✓</div><span>No personal ID data stored — scan is verified and immediately discarded</span></li>
+        </ul>
+      </div>
+      <div class="compliance-visual">
+        <div class="id-scan-demo">
+          <div class="id-line"><span>DOCUMENT TYPE</span><span class="val">DL — STATE ISSUED</span></div>
+          <div class="id-line"><span>DATE OF BIRTH</span><span class="val">••/••/1994</span></div>
+          <div class="id-line"><span>EXPIRY DATE</span><span class="val">08/2029 — VALID</span></div>
+          <div class="id-line"><span>AGE THRESHOLD</span><span class="val">21+ REQUIRED</span></div>
+          <div class="id-line"><span>CALCULATED AGE</span><span class="val">31 YEARS</span></div>
+          <div class="id-line"><span>VERIFICATION</span><span class="success">✓ APPROVED</span></div>
+          <div class="id-line"><span>DATA RETAINED</span><span class="val">NONE — PURGED</span></div>
+          <div class="id-line"><span>LOG ENTRY</span><span class="processing">RECORDING...</span></div>
+          <div class="scan-bar"><div class="scan-bar-fill"></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="testimonials">
+    <div class="section-label">From the Owners</div>
+    <h2 class="section-title">What Bar &amp; Club Owners Say</h2>
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-quote">"We were skeptical at first, but it's genuinely set-and-forget. The machine handles everything, guests love it, and we get a check every month. Total no-brainer."</p>
+        <div class="testimonial-author"><strong>Marcus T.</strong>Owner, The Velvet Room — Austin, TX</div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-quote">"My bartenders used to get harassed for cigarettes all night. Now guests just walk up to the BuzzBox and we haven't had a single complaint — or a compliance issue — since."</p>
+        <div class="testimonial-author"><strong>Priya K.</strong>General Manager, Electric Social — Chicago, IL</div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-quote">"We had a state inspection two months in. The auditor pulled the transaction logs from the BuzzBox dashboard and we were clear in 10 minutes. That alone was worth it."</p>
+        <div class="testimonial-author"><strong>Devon R.</strong>Owner, House of Spirits — Nashville, TN</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact" class="cta-section">
+    <h2>Your Bar Deserves<br><span style="color:var(--neon); text-shadow: 0 0 40px rgba(192,132,252,0.4);">A BuzzBox.</span></h2>
+    <p>No cost, no hassle, no risk. We place the machine, handle everything, and send you a check. Find out if your venue qualifies — takes 2 minutes.</p>
+    <div class="cta-actions">
+      <a href="mailto:venues@buzzbox.co" class="btn-primary">Check If Your Venue Qualifies</a>
+      <a href="tel:+18005559266" class="btn-outline">Talk to Sales</a>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-logo">Buzz<span>Box</span></div>
+    <ul class="footer-links">
+      <li><a href="#">Privacy Policy</a></li>
+      <li><a href="#">Compliance Docs</a></li>
+      <li><a href="#">Venue Partner Program</a></li>
+      <li><a href="#">Contact</a></li>
+    </ul>
+    <div class="footer-copy">© 2026 BuzzBox Inc. All rights reserved.</div>
+  </footer>
+
+</body>
+</html>
